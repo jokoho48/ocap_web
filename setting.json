@@ -1,5 +1,9 @@
 {
 	"listen": "127.0.0.1:5000",
+	"useHttps": false,
+	"certFile": "",
+	"keyFile": "",
+	"useAutoTLS": false,
 	"prefixURL": "/aar/",
 	"secret": "same-secret",
 	"logger": true,

@@ -9,6 +9,7 @@ import (
 	"github.com/OCAP2/web/server"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 func main() {
@@ -54,8 +55,29 @@ func app() error {
 	e.Use(
 		middleware.LoggerWithConfig(loggerConfig),
 	)
-	server.NewHandler(e, operation, marker, ammo, setting)
 
+	server.NewHandler(e, operation, marker, ammo, setting)
+	if setting.UseHttps {
+		if setting.UseAutoTLS {
+			autoTLSManager := autocert.Manager{
+				Prompt: autocert.AcceptTOS,
+				// Cache certificates to avoid issues with rate limits (https://letsencrypt.org/docs/rate-limits)
+				Cache: autocert.DirCache("/var/www/.cache"),
+			}
+			e.AutoTLSManager = autoTLSManager
+			err = e.StartAutoTLS(setting.Listen)
+			if err != nil {
+				return fmt.Errorf("start server: %w", err)
+			}
+			return nil
+		}
+
+		err = e.StartTLS(setting.Listen, setting.CertFile, setting.KeyFile)
+		if err != nil {
+			return fmt.Errorf("start server: %w", err)
+		}
+		return nil
+	}
 	err = e.Start(setting.Listen)
 	if err != nil {
 		return fmt.Errorf("start server: %w", err)

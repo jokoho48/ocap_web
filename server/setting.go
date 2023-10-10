@@ -8,17 +8,21 @@ import (
 )
 
 type Setting struct {
-	Listen    string    `json:"listen" yaml:"listen"`
-	PrefixURL string    `json:"prefixURL" yaml:"prefixURL"`
-	Secret    string    `json:"secret" yaml:"secret"`
-	DB        string    `json:"db" yaml:"db"`
-	Markers   string    `json:"markers" yaml:"markers"`
-	Ammo      string    `json:"ammo" yaml:"ammo"`
-	Maps      string    `json:"maps" yaml:"maps"`
-	Data      string    `json:"data" yaml:"data"`
-	Static    string    `json:"static" yaml:"static"`
-	Logger    bool      `json:"logger" yaml:"logger"`
-	Customize Customize `json:"customize" yaml:"customize"`
+	UseHttps   bool      `json:"useHttps" yaml:"useHttps"`
+	CertFile   string    `json:"certFile" yaml:"certFile"`
+	KeyFile    string    `json:"keyFile" yaml:"keyFile"`
+	UseAutoTLS bool      `json:"useAutoTLS" yaml:"useAutoTLS"`
+	Listen     string    `json:"listen" yaml:"listen"`
+	PrefixURL  string    `json:"prefixURL" yaml:"prefixURL"`
+	Secret     string    `json:"secret" yaml:"secret"`
+	DB         string    `json:"db" yaml:"db"`
+	Markers    string    `json:"markers" yaml:"markers"`
+	Ammo       string    `json:"ammo" yaml:"ammo"`
+	Maps       string    `json:"maps" yaml:"maps"`
+	Data       string    `json:"data" yaml:"data"`
+	Static     string    `json:"static" yaml:"static"`
+	Logger     bool      `json:"logger" yaml:"logger"`
+	Customize  Customize `json:"customize" yaml:"customize"`
 }
 
 type Customize struct {
@@ -42,6 +46,10 @@ func NewSetting() (setting Setting, err error) {
 	viper.AddConfigPath("$HOME/.ocap")
 	viper.AddConfigPath(".")
 
+	viper.SetDefault("useHttps", false)
+	viper.SetDefault("certFile", "host.crt")
+	viper.SetDefault("keyFile", "host.key")
+	viper.SetDefault("useAutoTLS", false)
 	viper.SetDefault("listen", "127.0.0.1:5000")
 	viper.SetDefault("prefixURL", "")
 	viper.SetDefault("db", "data.db")
@@ -54,7 +62,7 @@ func NewSetting() (setting Setting, err error) {
 	viper.SetDefault("customize.websiteLogoSize", "32px")
 
 	// workaround for https://github.com/spf13/viper/issues/761
-	envKeys := []string{"listen", "prefixURL", "secret", "db", "markers", "ammo", "maps", "data", "static", "customize.websiteurl", "customize.websitelogo", "customize.websitelogosize", "customize.disableKillCount"}
+	envKeys := []string{"useHttps", "certFile", "keyFile", "listen", "prefixURL", "secret", "db", "markers", "ammo", "maps", "data", "static", "customize.websiteurl", "customize.websitelogo", "customize.websitelogosize", "customize.disableKillCount"}
 	for _, key := range envKeys {
 		env := strings.ToUpper(strings.ReplaceAll(key, ".", "_"))
 		if err = viper.BindEnv(key, env); err != nil {
